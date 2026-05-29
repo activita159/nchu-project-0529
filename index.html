@@ -1,0 +1,969 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>嗚伊啊~嗚伊啊~嗚欸~</title>
+    <meta name="description" content="輸入你的名字，看看AI如何回應你">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@500;600;700&display=swap"
+        rel="stylesheet">
+    <!-- FontAwesome for futuristic icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        /* ==========================================================================
+           DESIGN SYSTEM & VARIABLES
+           ========================================================================== */
+        :root {
+            --bg-primary: #060713;
+            --bg-card: rgba(13, 17, 33, 0.7);
+            --border-color: rgba(0, 240, 255, 0.2);
+            --border-hover: rgba(0, 240, 255, 0.6);
+
+            /* Neon Palette */
+            --neon-cyan: #00f0ff;
+            --neon-pink: #ff0055;
+            --neon-yellow: #ffdd00;
+            --neon-cyan-glow: rgba(0, 240, 255, 0.4);
+            --neon-pink-glow: rgba(255, 0, 85, 0.3);
+
+            /* Text Colors */
+            --text-primary: #e2e8f0;
+            --text-muted: #718096;
+            --text-neon: #00f0ff;
+
+            /* Fonts */
+            --font-display: 'Orbitron', sans-serif;
+            --font-body: 'Rajdhani', sans-serif;
+        }
+
+        /* ==========================================================================
+           RESET & BASE STYLES
+           ========================================================================== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            user-select: none;
+        }
+
+        body {
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            font-family: var(--font-body);
+            font-size: 18px;
+            letter-spacing: 1px;
+            height: 100vh;
+            width: 100vw;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* ==========================================================================
+           BACKGROUND EFFECTS (Grid, Scanlines, Glow Orbs)
+           ========================================================================== */
+        /* Interactive Grid Background */
+        .grid-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image:
+                linear-gradient(rgba(0, 240, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 240, 255, 0.03) 1px, transparent 1px);
+            background-size: 30px 30px;
+            background-position: center center;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        /* Scanlines overlay */
+        .scanlines {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%,
+                    rgba(0, 0, 0, 0.25) 50%);
+            background-size: 100% 4px;
+            z-index: 2;
+            pointer-events: none;
+            opacity: 0.7;
+        }
+
+        /* Ambient Glow Orbs */
+        .glow-orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(120px);
+            z-index: 1;
+            pointer-events: none;
+            opacity: 0.4;
+            animation: orbFloat 20s infinite alternate ease-in-out;
+        }
+
+        .orb-1 {
+            width: 400px;
+            height: 400px;
+            background: var(--neon-cyan-glow);
+            top: 10%;
+            left: 15%;
+        }
+
+        .orb-2 {
+            width: 500px;
+            height: 500px;
+            background: var(--neon-pink-glow);
+            bottom: 10%;
+            right: 15%;
+            animation-delay: -5s;
+        }
+
+        @keyframes orbFloat {
+            0% {
+                transform: translate(0, 0) scale(1);
+            }
+
+            100% {
+                transform: translate(80px, 50px) scale(1.2);
+            }
+        }
+
+        /* ==========================================================================
+           CONSOLE CONTAINER CARD
+           ========================================================================== */
+        .console-wrapper {
+            z-index: 10;
+            width: 90%;
+            max-width: 650px;
+            perspective: 1000px;
+        }
+
+        .console-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            box-shadow:
+                0 20px 50px rgba(0, 0, 0, 0.5),
+                inset 0 0 40px rgba(0, 240, 255, 0.05);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            padding: 30px;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.5s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .console-card:hover {
+            border-color: rgba(0, 240, 255, 0.4);
+            box-shadow:
+                0 20px 60px rgba(0, 240, 255, 0.1),
+                inset 0 0 50px rgba(0, 240, 255, 0.08);
+        }
+
+        /* Tech Corner Brackets */
+        .corner-bracket {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            border-color: var(--neon-cyan);
+            border-style: solid;
+            pointer-events: none;
+            opacity: 0.8;
+            transition: all 0.3s ease;
+        }
+
+        .console-card:hover .corner-bracket {
+            width: 25px;
+            height: 25px;
+            border-color: var(--neon-pink);
+            filter: drop-shadow(0 0 5px var(--neon-pink));
+        }
+
+        .top-left {
+            top: -2px;
+            left: -2px;
+            border-width: 3px 0 0 3px;
+            border-top-left-radius: 6px;
+        }
+
+        .top-right {
+            top: -2px;
+            right: -2px;
+            border-width: 3px 3px 0 0;
+            border-top-right-radius: 6px;
+        }
+
+        .bottom-left {
+            bottom: -2px;
+            left: -2px;
+            border-width: 0 0 3px 3px;
+            border-bottom-left-radius: 6px;
+        }
+
+        .bottom-right {
+            bottom: -2px;
+            right: -2px;
+            border-width: 0 3px 3px 0;
+            border-bottom-right-radius: 6px;
+        }
+
+        /* ==========================================================================
+           CONSOLE HEADER
+           ========================================================================== */
+        .console-header {
+            border-bottom: 1px solid rgba(0, 240, 255, 0.15);
+            padding-bottom: 15px;
+            margin-bottom: 25px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .header-status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-family: var(--font-display);
+            font-size: 11px;
+            color: var(--text-neon);
+            font-weight: 700;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background-color: var(--neon-cyan);
+            border-radius: 50%;
+            box-shadow: 0 0 8px var(--neon-cyan);
+        }
+
+        .pulsing {
+            animation: neonPulse 1.5s infinite alternate ease-in-out;
+        }
+
+        @keyframes neonPulse {
+            0% {
+                opacity: 0.3;
+                box-shadow: 0 0 2px var(--neon-cyan);
+            }
+
+            100% {
+                opacity: 1;
+                box-shadow: 0 0 10px var(--neon-cyan);
+            }
+        }
+
+        .header-title h1 {
+            font-family: var(--font-display);
+            font-size: 20px;
+            font-weight: 900;
+            background: linear-gradient(90deg, #fff, #81e6d9, var(--neon-cyan));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .header-decor {
+            display: flex;
+            gap: 4px;
+        }
+
+        .decor-bar {
+            height: 3px;
+            background-color: var(--neon-cyan);
+        }
+
+        .decor-bar:nth-child(1) {
+            width: 40px;
+        }
+
+        .decor-bar:nth-child(2) {
+            width: 15px;
+            background-color: var(--neon-pink);
+        }
+
+        .decor-bar:nth-child(3) {
+            width: 5px;
+            background-color: var(--neon-yellow);
+        }
+
+        /* ==========================================================================
+           CONSOLE BODY
+           ========================================================================== */
+        .instruction-box {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: rgba(0, 240, 255, 0.03);
+            border-left: 3px solid var(--neon-cyan);
+            padding: 12px 15px;
+            margin-bottom: 25px;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .terminal-icon {
+            color: var(--neon-cyan);
+            font-size: 18px;
+            animation: iconSpin 8s infinite linear;
+        }
+
+        @keyframes iconSpin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        .instruction-text {
+            font-size: 15px;
+            color: var(--text-primary);
+            font-weight: 500;
+        }
+
+        /* Input Fields Container */
+        .input-container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .input-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+            background: rgba(5, 6, 15, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            padding: 14px 20px;
+            transition: all 0.3s ease;
+        }
+
+        .input-prompt {
+            font-family: var(--font-display);
+            color: var(--neon-cyan);
+            font-weight: 700;
+            margin-right: 12px;
+            font-size: 20px;
+            text-shadow: 0 0 5px var(--neon-cyan-glow);
+        }
+
+        #username-input {
+            background: transparent;
+            border: none;
+            outline: none;
+            color: #fff;
+            font-family: var(--font-body);
+            font-size: 18px;
+            width: 100%;
+            letter-spacing: 1.5px;
+            font-weight: 600;
+        }
+
+        #username-input::placeholder {
+            color: var(--text-muted);
+            font-weight: 400;
+        }
+
+        /* Glowing underline effect on input focus */
+        .input-glow-bar {
+            position: absolute;
+            bottom: -1px;
+            left: 50%;
+            width: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--neon-cyan), transparent);
+            transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+
+        .input-wrapper:focus-within {
+            border-color: rgba(0, 240, 255, 0.5);
+            box-shadow: 0 0 15px rgba(0, 240, 255, 0.15);
+        }
+
+        .input-wrapper:focus-within .input-glow-bar {
+            width: 100%;
+            left: 0;
+        }
+
+        /* Futuristic Button Styling */
+        .tech-btn {
+            position: relative;
+            background: transparent;
+            border: none;
+            outline: none;
+            cursor: pointer;
+            overflow: hidden;
+            padding: 15px 30px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .btn-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, var(--neon-cyan) 0%, #0099ff 100%);
+            z-index: 1;
+            clip-path: polygon(0 0, 93% 0, 100% 30%, 100% 100%, 7% 100%, 0 70%);
+            transition: all 0.3s ease;
+        }
+
+        .btn-text {
+            position: relative;
+            z-index: 2;
+            font-family: var(--font-display);
+            font-size: 15px;
+            font-weight: 700;
+            color: #060713;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+        }
+
+        /* Button Hover State */
+        .tech-btn:hover .btn-bg {
+            filter: brightness(1.2);
+            box-shadow: 0 0 20px rgba(0, 240, 255, 0.6);
+        }
+
+        .tech-btn:hover {
+            transform: translateY(-2px);
+            filter: drop-shadow(0 0 8px var(--neon-cyan-glow));
+        }
+
+        .tech-btn:active {
+            transform: translateY(1px);
+        }
+
+        .tech-btn i {
+            font-size: 12px;
+            transition: transform 0.3s ease;
+        }
+
+        .tech-btn:hover i {
+            transform: translateX(4px);
+        }
+
+        /* ==========================================================================
+           OUTPUT PANEL SCREEN
+           ========================================================================== */
+        .output-panel {
+            background: rgba(3, 4, 10, 0.9);
+            border: 1px solid rgba(255, 0, 85, 0.15);
+            border-radius: 8px;
+            padding: 20px;
+            min-height: 120px;
+            position: relative;
+            transition: all 0.3s ease;
+            box-shadow: inset 0 0 20px rgba(255, 0, 85, 0.02);
+        }
+
+        .output-panel.active {
+            border-color: rgba(255, 0, 85, 0.4);
+            box-shadow:
+                0 0 15px rgba(255, 0, 85, 0.1),
+                inset 0 0 25px rgba(255, 0, 85, 0.05);
+        }
+
+        .output-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: var(--font-display);
+            font-size: 11px;
+            color: var(--neon-pink);
+            font-weight: 700;
+            margin-bottom: 12px;
+            letter-spacing: 1.5px;
+            border-bottom: 1px dashed rgba(255, 0, 85, 0.2);
+            padding-bottom: 6px;
+        }
+
+        .output-cursor {
+            animation: cursorBlink 0.8s infinite;
+        }
+
+        @keyframes cursorBlink {
+
+            0%,
+            100% {
+                opacity: 0;
+            }
+
+            50% {
+                opacity: 1;
+            }
+        }
+
+        .output-content {
+            font-family: var(--font-display);
+            font-size: 22px;
+            font-weight: 700;
+            line-height: 1.6;
+            min-height: 40px;
+            display: flex;
+            align-items: center;
+        }
+
+        .placeholder-text {
+            font-family: var(--font-body);
+            font-size: 16px;
+            color: var(--text-muted);
+        }
+
+        .welcome-text {
+            color: #fff;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
+        }
+
+        .welcome-name {
+            color: var(--neon-cyan);
+            text-shadow: 0 0 8px var(--neon-cyan-glow);
+        }
+
+        /* ==========================================================================
+           CONSOLE FOOTER
+           ========================================================================== */
+        .console-footer {
+            display: flex;
+            justify-content: space-between;
+            font-family: var(--font-display);
+            font-size: 10px;
+            color: var(--text-muted);
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            padding-top: 15px;
+            margin-top: 25px;
+            letter-spacing: 1px;
+        }
+
+        /* ==========================================================================
+           GLITCH AND ANIMATIONS UTILITIES
+           ========================================================================== */
+        .glitch-text {
+            animation: textGlitch 0.4s ease-out;
+        }
+
+        @keyframes textGlitch {
+            0% {
+                transform: translate(2px, 1px) rotate(0deg);
+                filter: hue-rotate(0deg);
+            }
+
+            20% {
+                transform: translate(-1px, -2px) rotate(-0.5deg);
+                filter: hue-rotate(90deg);
+            }
+
+            40% {
+                transform: translate(1px, -1px) rotate(0.5deg);
+                filter: hue-rotate(180deg);
+            }
+
+            60% {
+                transform: translate(-2px, 1px) rotate(0deg);
+                filter: hue-rotate(270deg);
+            }
+
+            80% {
+                transform: translate(1px, 2px) rotate(0.5deg);
+                filter: hue-rotate(360deg);
+            }
+
+            100% {
+                transform: translate(0px, 0px) rotate(0deg);
+                filter: hue-rotate(0deg);
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Background Scanlines & Particle Grid -->
+    <div class="scanlines"></div>
+    <div class="grid-bg"></div>
+
+    <div class="glow-orb orb-1"></div>
+    <div class="glow-orb orb-2"></div>
+
+    <main class="console-wrapper">
+        <!-- Main Cyberpunk Interface Card -->
+        <div class="console-card" id="terminal-card">
+            <!-- Decorative Tech Corner Brackets -->
+            <div class="corner-bracket top-left"></div>
+            <div class="corner-bracket top-right"></div>
+            <div class="corner-bracket bottom-left"></div>
+            <div class="corner-bracket bottom-right"></div>
+
+            <!-- Terminal Header -->
+            <header class="console-header">
+                <div class="header-status">
+                    <span class="status-dot pulsing"></span>
+                    <span class="status-text">SYSTEM ONLINE // PORT-8080</span>
+                </div>
+                <div class="header-title">
+                    <h1>NEURAL INTERACTION INTERFACE</h1>
+                </div>
+                <div class="header-decor">
+                    <span class="decor-bar"></span>
+                    <span class="decor-bar"></span>
+                    <span class="decor-bar"></span>
+                </div>
+            </header>
+
+            <!-- Console Body -->
+            <div class="console-body">
+                <div class="instruction-box">
+                    <i class="fa-solid fa-microchip terminal-icon"></i>
+                    <p class="instruction-text">請輸入您的識別代號以初始化身分驗證程序...</p>
+                </div>
+
+                <!-- Input Interface Area -->
+                <div class="input-container">
+                    <div class="input-wrapper">
+                        <span class="input-prompt">&gt;</span>
+                        <input type="text" id="username-input" autocomplete="off" placeholder="請輸入使用者名稱..."
+                            maxlength="20" aria-label="使用者名稱輸入">
+                        <div class="input-glow-bar"></div>
+                    </div>
+
+                    <button type="button" id="confirm-btn" class="tech-btn" aria-label="確認送出">
+                        <span class="btn-bg"></span>
+                        <span class="btn-text">
+                            驗證身分 <i class="fa-solid fa-chevron-right"></i>
+                        </span>
+                    </button>
+                </div>
+
+                <!-- Terminal Output Display Panel -->
+                <div class="output-panel" id="output-panel">
+                    <div class="output-header">
+                        <span class="output-label">OUTPUT LOG // RESPONSE</span>
+                        <span class="output-cursor">_</span>
+                    </div>
+                    <div class="output-content" id="output-content">
+                        <!-- Result will be typed here -->
+                        <span class="placeholder-text">等待系統識別中...</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Terminal Footer -->
+            <footer class="console-footer">
+                <div class="footer-left">
+                    <span>SECURITY STATUS: SECURE</span>
+                </div>
+                <div class="footer-right">
+                    <span>v1.0.4-BETA</span>
+                </div>
+            </footer>
+        </div>
+    </main>
+
+    <script>
+        // ==========================================================================
+        // SOUND SYNTHESIZER (Web Audio API)
+        // ==========================================================================
+        class TechAudioSynth {
+            constructor() {
+                this.ctx = null;
+            }
+
+            init() {
+                if (!this.ctx) {
+                    this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+                }
+                if (this.ctx.state === 'suspended') {
+                    this.ctx.resume();
+                }
+            }
+
+            playTap() {
+                this.init();
+                if (!this.ctx) return;
+
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(800, this.ctx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(1200, this.ctx.currentTime + 0.05);
+
+                gain.gain.setValueAtTime(0.05, this.ctx.currentTime);
+                gain.gain.linearRampToValueAtTime(0.001, this.ctx.currentTime + 0.05);
+
+                osc.start();
+                osc.stop(this.ctx.currentTime + 0.05);
+            }
+
+            playSuccess() {
+                this.init();
+                if (!this.ctx) return;
+
+                const now = this.ctx.currentTime;
+
+                // Note 1
+                const osc1 = this.ctx.createOscillator();
+                const gain1 = this.ctx.createGain();
+                osc1.connect(gain1);
+                gain1.connect(this.ctx.destination);
+                osc1.type = 'triangle';
+                osc1.frequency.setValueAtTime(523.25, now); // C5
+                gain1.gain.setValueAtTime(0.08, now);
+                gain1.gain.exponentialRampToValueAtTime(0.001, now + 0.25);
+                osc1.start(now);
+                osc1.stop(now + 0.25);
+
+                // Note 2 (Delayed harmony)
+                const osc2 = this.ctx.createOscillator();
+                const gain2 = this.ctx.createGain();
+                osc2.connect(gain2);
+                gain2.connect(this.ctx.destination);
+                osc2.type = 'sine';
+                osc2.frequency.setValueAtTime(783.99, now + 0.08); // G5
+                gain2.gain.setValueAtTime(0.08, now + 0.08);
+                gain2.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
+                osc2.start(now + 0.08);
+                osc2.stop(now + 0.35);
+            }
+
+            playError() {
+                this.init();
+                if (!this.ctx) return;
+
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(150, this.ctx.currentTime);
+                osc.frequency.linearRampToValueAtTime(100, this.ctx.currentTime + 0.25);
+
+                gain.gain.setValueAtTime(0.08, this.ctx.currentTime);
+                gain.gain.linearRampToValueAtTime(0.001, this.ctx.currentTime + 0.25);
+
+                osc.start();
+                osc.stop(this.ctx.currentTime + 0.25);
+            }
+        }
+
+        const synth = new TechAudioSynth();
+
+        // ==========================================================================
+        // 3D CARD PARALLAX EFFECT
+        // ==========================================================================
+        const card = document.getElementById('terminal-card');
+        const body = document.body;
+
+        body.addEventListener('mousemove', (e) => {
+            if (!card) return;
+
+            const rect = card.getBoundingClientRect();
+            const cardCenterX = rect.left + rect.width / 2;
+            const cardCenterY = rect.top + rect.height / 2;
+
+            const mouseX = e.clientX;
+            const mouseY = e.clientY;
+
+            // Calculate rotation degree (max 6 degrees tilt)
+            const rotateX = ((cardCenterY - mouseY) / (window.innerHeight / 2)) * 6;
+            const rotateY = ((mouseX - cardCenterX) / (window.innerWidth / 2)) * 6;
+
+            card.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+        });
+
+        // Reset card tilt when mouse leaves the viewport or isn't moving
+        body.addEventListener('mouseleave', () => {
+            if (card) {
+                card.style.transform = 'rotateX(0deg) rotateY(0deg)';
+            }
+        });
+
+        // ==========================================================================
+        // INTERACTION & TYPEWRITER LOGIC
+        // ==========================================================================
+        const usernameInput = document.getElementById('username-input');
+        const confirmBtn = document.getElementById('confirm-btn');
+        const outputContent = document.getElementById('output-content');
+        const outputPanel = document.getElementById('output-panel');
+
+        // Play soft tap sound when typing
+        usernameInput.addEventListener('input', () => {
+            synth.playTap();
+        });
+
+        // Trigger verification on click
+        confirmBtn.addEventListener('click', handleVerify);
+
+        // Trigger verification on enter key
+        usernameInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                handleVerify();
+            }
+        });
+
+        let isTyping = false;
+
+        function handleVerify() {
+            if (isTyping) return; // Prevent spamming while typing animation is active
+
+            const name = usernameInput.value.trim();
+
+            // Reset output display status
+            outputPanel.classList.remove('active');
+            outputContent.innerHTML = '';
+
+            if (name === '') {
+                // Validation Error State
+                synth.playError();
+                outputPanel.classList.add('active');
+                typeText('ERROR // NULL_IDENTIFIER: 請輸入有效名稱', 'error');
+            } else {
+                // Success Welcome State
+                synth.playSuccess();
+                outputPanel.classList.add('active');
+
+                // Construct the greeting text
+                const greetingHTML = `<span class="welcome-text">您好，</span><span class="welcome-name glitch-text">${escapeHTML(name)}</span>`;
+                typeHTML(greetingHTML);
+            }
+        }
+
+        // Simple HTML escaping helper
+        function escapeHTML(str) {
+            return str.replace(/[&<>'"]/g,
+                tag => ({
+                    '&': '&amp;',
+                    '<': '&lt;',
+                    '>': '&gt;',
+                    "'": '&#39;',
+                    '"': '&quot;'
+                }[tag] || tag)
+            );
+        }
+
+        // Typewriter effect for simple text (like error logs)
+        function typeText(text, mode) {
+            isTyping = true;
+            let index = 0;
+
+            if (mode === 'error') {
+                outputContent.style.color = 'var(--neon-pink)';
+            } else {
+                outputContent.style.color = 'var(--text-primary)';
+            }
+
+            function type() {
+                if (index < text.length) {
+                    outputContent.innerHTML += text.charAt(index);
+                    index++;
+                    synth.playTap();
+                    setTimeout(type, 30);
+                } else {
+                    isTyping = false;
+                }
+            }
+            type();
+        }
+
+        // Advanced typewriter that parses and styles tags
+        function typeHTML(htmlString) {
+            isTyping = true;
+            outputContent.style.color = 'var(--text-primary)';
+
+            // Create a temporary container to parse HTML elements
+            const tempDiv = document.createElement('div');
+            tempDiv.innerHTML = htmlString;
+            const nodes = Array.from(tempDiv.childNodes);
+
+            let nodeIndex = 0;
+            let charIndex = 0;
+
+            // Output node containers
+            let activeContainer = null;
+
+            function typeNode() {
+                if (nodeIndex >= nodes.length) {
+                    isTyping = false;
+                    return;
+                }
+
+                const currentNode = nodes[nodeIndex];
+
+                if (currentNode.nodeType === Node.TEXT_NODE) {
+                    // Text node typing
+                    const textContent = currentNode.textContent;
+                    if (charIndex === 0) {
+                        activeContainer = document.createTextNode('');
+                        outputContent.appendChild(activeContainer);
+                    }
+
+                    if (charIndex < textContent.length) {
+                        activeContainer.textContent += textContent.charAt(charIndex);
+                        charIndex++;
+                        synth.playTap();
+                        setTimeout(typeNode, 40);
+                    } else {
+                        nodeIndex++;
+                        charIndex = 0;
+                        typeNode();
+                    }
+                } else if (currentNode.nodeType === Node.ELEMENT_NODE) {
+                    // HTML Element node typing (e.g. <span>)
+                    if (charIndex === 0) {
+                        activeContainer = document.createElement(currentNode.tagName);
+                        // Copy all attributes/classes
+                        Array.from(currentNode.attributes).forEach(attr => {
+                            activeContainer.setAttribute(attr.name, attr.value);
+                        });
+                        outputContent.appendChild(activeContainer);
+                    }
+
+                    const textContent = currentNode.textContent;
+                    if (charIndex < textContent.length) {
+                        activeContainer.textContent += textContent.charAt(charIndex);
+                        charIndex++;
+                        synth.playTap();
+                        setTimeout(typeNode, 50);
+                    } else {
+                        nodeIndex++;
+                        charIndex = 0;
+                        typeNode();
+                    }
+                }
+            }
+
+            typeNode();
+        }
+    </script>
+</body>
+
+</html>
