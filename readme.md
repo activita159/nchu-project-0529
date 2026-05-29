@@ -2,6 +2,8 @@
 
 這是一個具備未來科幻視覺風格（Cyberpunk / Hologram 終端機風格）的純前端單網頁應用程式。
 
+🔗 **Demo Live**: [https://activita159.github.io/nchu-project-0529/](https://activita159.github.io/nchu-project-0529/)
+
 ## 🚀 快速開始
 
 本專案所有的 HTML、CSS 和 JavaScript 已全部整合至一個單一檔案中。
