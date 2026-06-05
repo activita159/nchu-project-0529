@@ -300,6 +300,43 @@
         }
 
         /* ==========================================================================
+           DATETIME DISPLAY
+           ========================================================================== */
+        .datetime-panel {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+            padding: 12px 0;
+            margin-bottom: 20px;
+            border-top: 1px solid rgba(0, 240, 255, 0.08);
+            border-bottom: 1px solid rgba(0, 240, 255, 0.08);
+            font-family: var(--font-display);
+        }
+
+        .datetime-block {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 13px;
+            color: var(--text-neon);
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-shadow: 0 0 6px var(--neon-cyan-glow);
+        }
+
+        .datetime-block i {
+            font-size: 12px;
+            color: var(--neon-pink);
+        }
+
+        .datetime-separator {
+            width: 1px;
+            height: 18px;
+            background: rgba(0, 240, 255, 0.3);
+        }
+
+        /* ==========================================================================
            CONSOLE BODY
            ========================================================================== */
         .instruction-box {
@@ -634,6 +671,19 @@
                 </div>
             </header>
 
+            <!-- Datetime Display -->
+            <div class="datetime-panel" id="datetime-panel">
+                <div class="datetime-block" id="date-display">
+                    <i class="fa-solid fa-calendar-days"></i>
+                    <span id="date-text">----.--.--</span>
+                </div>
+                <div class="datetime-separator"></div>
+                <div class="datetime-block" id="time-display">
+                    <i class="fa-solid fa-clock"></i>
+                    <span id="time-text">--:--:--</span>
+                </div>
+            </div>
+
             <!-- Console Body -->
             <div class="console-body">
                 <div class="instruction-box">
@@ -963,6 +1013,29 @@
 
             typeNode();
         }
+
+        // ==========================================================================
+        // DATETIME CLOCK
+        // ==========================================================================
+        function updateDateTime() {
+            const now = new Date();
+
+            const year = now.getFullYear();
+            const month = String(now.getMonth() + 1).padStart(2, '0');
+            const day = String(now.getDate()).padStart(2, '0');
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            const seconds = String(now.getSeconds()).padStart(2, '0');
+
+            const dateText = document.getElementById('date-text');
+            const timeText = document.getElementById('time-text');
+
+            if (dateText) dateText.textContent = `${year}.${month}.${day}`;
+            if (timeText) timeText.textContent = `${hours}:${minutes}:${seconds}`;
+        }
+
+        updateDateTime();
+        setInterval(updateDateTime, 1000);
     </script>
 </body>
 
